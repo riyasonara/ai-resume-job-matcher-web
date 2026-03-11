@@ -1,5 +1,6 @@
 import { AppSidebar } from "./AppSidebar";
 import { AppHeader } from "./AppHeader";
+import { PageTransition } from "./PageTransition";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -8,7 +9,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col">
         <AppHeader />
         <main className="flex-1 p-8">
-          {children}
+          <PageTransition>{children}</PageTransition>
         </main>
       </div>
     </div>
