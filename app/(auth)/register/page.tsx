@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Card } from "@/components/ui/card";
@@ -8,6 +9,8 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { registerUser } from "@/app/services/auth.service";
+import { useRouter } from "next/navigation";
 
 const registerSchema = z
   .object({
@@ -23,6 +26,8 @@ const registerSchema = z
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -32,7 +37,19 @@ export default function RegisterPage() {
   });
 
   const onSubmit = async (data: RegisterFormValues) => {
-    console.log("Register Data:", data);
+    try {
+      const res = await registerUser({
+        email: data.email,
+        password: data.password,
+      });
+
+      localStorage.setItem("token", res.token);
+      router.push("/dashboard");
+    } catch (error: any) {
+      console.error(error);
+
+      alert(error?.response?.data?.message || "Registration failed");
+    }
   };
 
   return (
@@ -44,24 +61,15 @@ export default function RegisterPage() {
       >
         <Card className="w-100 p-8 space-y-6 shadow-lg">
           <div className="text-center space-y-2">
-            <h1 className="text-2xl font-semibold">
-              Create Account
-            </h1>
+            <h1 className="text-2xl font-semibold">Create Account</h1>
             <p className="text-sm text-muted-foreground">
               Start matching smarter with AI
             </p>
           </div>
 
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="space-y-4"
-          >
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <Input
-                placeholder="Email"
-                type="email"
-                {...register("email")}
-              />
+              <Input placeholder="Email" type="email" {...register("email")} />
               {errors.email && (
                 <p className="text-sm text-destructive mt-1">
                   {errors.email.message}
@@ -95,23 +103,14 @@ export default function RegisterPage() {
               )}
             </div>
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isSubmitting}
-            >
-              {isSubmitting
-                ? "Creating Account..."
-                : "Create Account"}
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? "Creating Account..." : "Create Account"}
             </Button>
           </form>
 
           <p className="text-sm text-center text-muted-foreground">
             Already have an account?{" "}
-            <Link
-              href="/login"
-              className="text-primary hover:underline"
-            >
+            <Link href="/login" className="text-primary hover:underline">
               Sign in
             </Link>
           </p>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Card } from "@/components/ui/card";
@@ -8,6 +9,8 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { loginUser } from "@/app/services/auth.service";
+import { useRouter } from "next/navigation";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -17,6 +20,8 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -26,7 +31,16 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
-    console.log("Login Data:", data);
+     try {
+      const res = await loginUser(data);
+
+      localStorage.setItem("token", res.token);
+
+      router.push("/dashboard");
+    } catch (error: any) {
+      console.error(error);
+      alert("Login failed");
+    }
   };
 
   return (

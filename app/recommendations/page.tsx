@@ -5,41 +5,28 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion, useMotionValue, animate } from "framer-motion";
 import { useEffect, useState } from "react";
-
-type Job = {
-  id: number;
-  title: string;
-  company: string;
-  score: number;
-};
-
-const mockJobs: Job[] = [
-  {
-    id: 1,
-    title: "Performance Marketing Manager",
-    company: "AdScale Media",
-    score: 82,
-  },
-  {
-    id: 2,
-    title: "Digital Marketing Specialist",
-    company: "GrowthBoost Media",
-    score: 74,
-  },
-  {
-    id: 3,
-    title: "Backend Developer",
-    company: "CloudTech Solutions",
-    score: 38,
-  },
-];
+import {
+  getRecommendedJobs,
+  type RecommendedJob as Job,
+} from "@/app/services/match.service";
 
 export default function RecommendationsPage() {
   const [loading, setLoading] = useState(true);
+  const [jobs, setJobs] = useState<Job[]>([]);
 
   useEffect(() => {
-    const timeout = setTimeout(() => setLoading(false), 1200);
-    return () => clearTimeout(timeout);
+    const fetchJobs = async () => {
+      try {
+        const data = await getRecommendedJobs();
+        setJobs(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobs();
   }, []);
 
   return (
@@ -59,7 +46,7 @@ export default function RecommendationsPage() {
             ))}
           </div>
         ) : (
-          mockJobs.map((job) => <AnimatedJobCard key={job.id} job={job} />)
+          jobs.map((job) => <AnimatedJobCard key={job.jobId} job={job} />)
         )}
       </div>
     </AppLayout>
