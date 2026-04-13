@@ -62,19 +62,8 @@ export default function InterviewPage() {
             AI interview prep
           </h1>
           <p className="text-slate-500 mt-1 text-sm">
-            Uses{" "}
-            <code className="text-xs bg-slate-100 px-1.5 py-0.5 rounded">
-              POST /api/Ai/interview
-            </code>{" "}
-            API returns parallel{" "}
-            <code className="text-xs bg-slate-100 px-1 py-0.5 rounded">
-              questions
-            </code>{" "}
-            and{" "}
-            <code className="text-xs bg-slate-100 px-1 py-0.5 rounded">
-              answers
-            </code>{" "}
-            arrays (same length, matched by index).
+            Generates interview questions and answers in parallel, aligned by
+            context for a seamless mock interview experience.
           </p>
         </div>
 

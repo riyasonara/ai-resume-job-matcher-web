@@ -10,6 +10,7 @@ import AppLayout from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import Link from "next/link";
 import {
   FileUp,
   FileText,
@@ -18,6 +19,8 @@ import {
   AlertCircle,
   Loader2,
   UploadCloud,
+  ArrowRight,
+  RotateCcw,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { uploadResume } from "@/services/resume.service";
@@ -52,6 +55,7 @@ export default function UploadPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const [uploadPercent, setUploadPercent] = useState(0);
+  const [isUploaded, setIsUploaded] = useState(false);
 
   const {
     watch,
@@ -77,6 +81,8 @@ export default function UploadPage() {
     onSuccess: () => {
       setUploadPercent(100);
       toast.success("Resume uploaded successfully");
+      setIsUploaded(true);
+      queryClient.invalidateQueries({ queryKey: queryKeys.recommendations });
       reset();
     },
     onError: (err: unknown) => {
@@ -88,6 +94,7 @@ export default function UploadPage() {
   const onPickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
     if (selected) {
+      setIsUploaded(false);
       setValue("file", selected, { shouldValidate: true });
     }
     e.target.value = "";
@@ -116,7 +123,44 @@ export default function UploadPage() {
             <CardContent className="p-12">
               <div className="flex flex-col items-center justify-center text-center">
                 <AnimatePresence mode="wait">
-                  {!file ? (
+                  {isUploaded ? (
+                    <motion.div
+                      key="success"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="flex flex-col items-center"
+                    >
+                      <div className="h-20 w-20 rounded-2xl bg-emerald-50 shadow-sm ring-1 ring-emerald-100 flex items-center justify-center mb-6">
+                        <CheckCircle2 className="h-10 w-10 text-emerald-500" />
+                      </div>
+                      <h3 className="text-xl font-bold text-slate-900">
+                        Resume uploaded!
+                      </h3>
+                      <p className="text-sm text-slate-500 mt-2 max-w-xs">
+                        Your resume has been processed. You can now view personalized job recommendations.
+                      </p>
+                      <div className="mt-8 flex flex-col sm:flex-row gap-3 w-full max-w-sm">
+                        <Button
+                          asChild
+                          className="flex-1 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 h-11"
+                        >
+                          <Link href="/recommendations">
+                            View Recommendations
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </Link>
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setIsUploaded(false)}
+                          className="rounded-xl border-slate-200 h-11"
+                        >
+                          <RotateCcw className="mr-2 h-4 w-4" />
+                          Upload another
+                        </Button>
+                      </div>
+                    </motion.div>
+                  ) : !file ? (
                     <motion.div
                       key="empty"
                       initial={{ opacity: 0, y: 10 }}
